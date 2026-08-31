@@ -1,0 +1,94 @@
+======================================================
+COE67-222 Operating Systems - Lab 03 Report
+Name: ธนาวุฒิ พูลไธสง
+Student ID: 67100586
+======================================================
+
+1. The Race Condition (Phase 2):
+
+In race_condition.py, the expected final weight was 200 because
+two threads each performed 100 updates. However, the actual result
+observed in the experiment was 100.
+
+The error occurs because updating shared_weight is not an atomic
+operation. Each thread first reads shared_weight into a temporary
+variable, modifies the value, and then writes the result back.
+
+For example, both threads may read the same value before either one
+writes its new value. Thread 1 may calculate value + 1, while Thread 2
+also calculates the same value + 1. When both threads write their
+results back, one update overwrites the other. Therefore, one of the
+increments is lost.
+
+The OS Scheduler plays an important role because it can pause one
+thread during the Read -> Modify -> Write sequence and allow another
+thread to execute. The time.sleep() call in the program increases the
+chance that the OS Scheduler will switch between the two threads at
+this critical point.
+
+As a result, some updates are lost and the final value becomes lower
+than the expected value. In my experiment:
+
+Expected Weight Value: 200
+Actual Weight Value: 100
+
+
+2. Mutex vs. Semaphore (Phase 3):
+
+The mutex protects the Critical Section of the shared bounded buffer.
+Only one thread is allowed to access or modify the shared buffer and
+the in_index/out_index variables at a time.
+
+Therefore, when the Producer is writing to the shared buffer, the
+Consumer cannot access the same critical section simultaneously, and
+vice versa.
+
+The empty semaphore counts how many empty slots are available in the
+buffer. The buffer size is 5, so empty starts with a value of 5.
+
+If empty becomes 0, the Producer must wait because the buffer is full.
+
+The full semaphore counts how many slots currently contain data.
+It starts at 0 because the buffer initially contains no data.
+
+If full is 0, the Consumer must wait because there is no item available
+to consume.
+
+A Mutex alone is not enough because a Mutex only provides mutual
+exclusion. It prevents two threads from entering the critical section
+at the same time, but it does not keep track of how many empty or full
+slots exist.
+
+The Semaphores provide this resource-counting behavior, while the Mutex
+protects the shared data from simultaneous access.
+
+
+3. Deadlock Awareness:
+
+The Producer currently acquires the synchronization objects in this
+order:
+
+empty.acquire()
+mutex.acquire()
+
+This order is important because the Producer first waits until an
+empty buffer slot is available before locking the shared buffer.
+
+If these two lines were swapped:
+
+mutex.acquire()
+empty.acquire()
+
+and the buffer was completely full, the Producer could acquire the
+mutex first and then block while waiting for an empty slot.
+
+At the same time, the Consumer would need to acquire the same mutex in
+order to remove an item from the full buffer. However, it could not
+acquire the mutex because the Producer is holding it while waiting for
+empty.
+
+The Producer would be waiting for the Consumer to create an empty
+slot, while the Consumer would be waiting for the Producer to release
+the mutex.
+
+Therefore, neither thread could continue, creating a Deadlock.
