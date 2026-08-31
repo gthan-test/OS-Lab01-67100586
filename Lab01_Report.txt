@@ -1,16 +1,70 @@
 ======================================================
-COE67-XXX Operating Systems - Lab 01 Report
-Name: 
-Student ID: 
+COE67-222 Operating Systems - Lab 01 Report
+Name: ธนาวุฒิ พูลไธสง
+Student ID: 67100586
 ======================================================
 
 1. Hardware Baseline:
-- OS Version:
-- Number of CPU Cores:
-- Total RAM:
 
-2. Observation (from htop during stress test):
-[Write your answer here]
+- OS Version:
+  Linux 6.8.0-1052-azure
+  (#58~22.04.1-Ubuntu)
+
+- CPU Architecture:
+  x86_64
+
+- CPU Model:
+  AMD EPYC 7763 64-Core Processor
+
+- Number of CPU Cores:
+  2 logical CPUs
+
+- Total RAM:
+  7.76 GB from profiler.py
+  Approximately 7.8 GiB from free -h
+
+The results from profiler.py were consistent with the results
+from the Linux commands lscpu and free -h.
+
+
+2. Observation:
+
+During the CPU stress test, the stress_test.py process used
+approximately 95.4% CPU according to htop.
+
+The Codespace provides 2 logical CPUs. However, the Python stress
+test did not fully utilize both logical CPUs at 100% simultaneously.
+
+At the time of observation, htop showed approximately:
+
+CPU 0: 38.7%
+CPU 1: 93.3%
+
+The python stress_test.py process itself used approximately 95.4%
+CPU. This means the CPU-bound Python program was using approximately
+one logical CPU worth of processing instead of fully utilizing all
+available CPU cores at the same time.
+
 
 3. Analysis:
-[Write your answer here]
+
+Knowing the memory limit and the number of CPU cores is important
+before training a Machine Learning model on a large dataset such as
+500,000 images.
+
+RAM determines how much data can be loaded into memory at one time.
+If the dataset or training batches require more memory than the
+system has available, the program may become very slow or fail due
+to insufficient memory. Therefore, knowing the available RAM helps
+us choose an appropriate batch size and data-loading strategy.
+
+The number of CPU cores is also important because the CPU is used
+for tasks such as loading images, preprocessing data, image
+augmentation, and other computations. Knowing the available CPU
+resources helps us decide how much parallel processing the system
+can handle efficiently.
+
+Therefore, checking both RAM and CPU resources before running a
+large Machine Learning workload helps prevent resource exhaustion
+and allows the program to use the operating system resources more
+efficiently.
