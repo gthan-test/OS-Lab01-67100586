@@ -1,0 +1,81 @@
+======================================================
+COE67-222 Operating Systems - Lab 02 Report
+Name: ธนาวุฒิ พูลไธสง
+Student ID: 67100586
+======================================================
+
+1. Execution Time Comparison:
+
+- Sequential Time: 8.65 seconds
+- Multithreading Time: 8.92 seconds
+- Multiprocessing Time: 8.08 seconds
+
+
+2. System Observation (htop):
+
+During the Sequential execution, the CPU-bound workload mainly used
+approximately one logical CPU worth of processing at a time.
+
+During Multithreading, creating multiple threads did not significantly
+increase CPU utilization across all available CPU cores. The execution
+time was 8.92 seconds, which was slightly slower than the Sequential
+time of 8.65 seconds.
+
+During Multiprocessing, separate operating system processes were
+created. These processes could be scheduled independently by the OS
+across the available CPU resources. Multiprocessing produced the
+fastest result in this experiment at 8.08 seconds.
+
+The Codespace used in this experiment had 2 logical CPUs, so the
+performance improvement from Multiprocessing was limited by the
+available CPU resources and the overhead of creating and scheduling
+multiple processes.
+
+
+3. Analysis (The GIL):
+
+Multithreading did not make the CPU-bound program faster because
+CPython uses the Global Interpreter Lock (GIL).
+
+The GIL allows only one thread at a time to execute Python bytecode
+within a Python process. Therefore, even though 16 threads were
+created, they could not execute the CPU-bound Python calculations
+simultaneously using multiple CPU cores.
+
+There is also additional overhead from creating threads and switching
+between them. In this experiment, Multithreading took 8.92 seconds,
+which was slightly slower than the Sequential execution time of
+8.65 seconds.
+
+Multiprocessing is more suitable for CPU-bound tasks because each
+process has its own memory space and its own Python interpreter and
+GIL. Therefore, the operating system can execute separate processes
+on different CPU cores in parallel.
+
+This is why Multiprocessing achieved the fastest result in this
+experiment at 8.08 seconds.
+
+
+4. Forking and Zombie Process Observation:
+
+The fork_zombie.py program used os.fork() to create a child process.
+
+In the observed run:
+
+Parent PID: 28477
+Child PID: 28478
+
+The child process completed its work and called sys.exit(0), while
+the parent process remained alive and slept for 60 seconds without
+calling os.wait().
+
+During this period, htop showed the child process with State = Z,
+which means Zombie.
+
+A Zombie Process is a process that has already terminated but still
+has an entry in the operating system process table because its parent
+has not yet collected its exit status.
+
+To prevent a Zombie Process, the parent process should call os.wait()
+(or another appropriate wait function) to collect the child's exit
+status after the child terminates.
