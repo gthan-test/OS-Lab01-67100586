@@ -1,0 +1,122 @@
+======================================================
+COE67-222 Operating Systems - Lab 04 Report
+Name: ธนาวุฒิ พูลไธสง
+Student ID: 67100586
+======================================================
+
+1. The Deadlock (Phase 2):
+
+In deadlock_simulation.py, Model A and Model B acquired the two GPU
+locks in opposite orders.
+
+Model A first acquired GPU 0.
+Model B first acquired GPU 1.
+
+After a short delay, Model A tried to acquire GPU 1, but GPU 1 was
+already held by Model B.
+
+At the same time, Model B tried to acquire GPU 0, but GPU 0 was
+already held by Model A.
+
+Therefore:
+
+Model A held GPU 0 and waited for GPU 1.
+Model B held GPU 1 and waited for GPU 0.
+
+Neither model could continue because each model was waiting for a
+resource held by the other model.
+
+This created the Circular Wait condition and caused a Deadlock.
+The program froze and never reached the normal completion message,
+so I had to manually stop it using Ctrl+C.
+
+
+2. The Solution (Phase 3):
+
+In deadlock_avoidance.py, both Model A and Model B were forced to
+acquire the GPU locks in the same order:
+
+GPU 0 first, then GPU 1.
+
+This strict Resource Hierarchy removed the Circular Wait condition.
+
+For example, if Model A acquired GPU 0 first, Model B had to wait for
+GPU 0 instead of acquiring GPU 1.
+
+Model A could then acquire GPU 1, complete its work, and release both
+resources.
+
+After the resources were released, Model B could acquire GPU 0 and
+then GPU 1.
+
+Because no model could hold GPU 1 while waiting for GPU 0, the
+circular dependency was eliminated.
+
+The program completed successfully without freezing.
+
+
+3. Starvation vs Deadlock (Phase 4):
+
+The final output of the Starvation simulation was fundamentally
+different from the Deadlock simulation.
+
+In the Deadlock simulation, the program stopped making progress
+because Model A and Model B were waiting for each other indefinitely.
+
+In the Starvation simulation, the system continued running and
+completed normally, but the Polite_Model received far fewer chances
+to acquire the shared resource.
+
+The observed results were:
+
+Greedy_Model_A: 23435 times
+Greedy_Model_B: 23394 times
+Polite_Model: 296 times
+
+This shows that the Polite_Model was not completely blocked forever,
+but it received a much smaller share of the resource compared with
+the Greedy Models.
+
+A process scheduler can use a technique called Aging to reduce
+Starvation.
+
+With Aging, the priority of a process is gradually increased the
+longer it waits for CPU time or another resource.
+
+Therefore, if the Polite_Model waits for a long time, the scheduler
+can gradually raise its priority until it receives a fair opportunity
+to execute.
+
+This prevents low-priority processes from being ignored indefinitely.
+
+
+4. Deadlock Detection & Recovery:
+
+In deadlock_detection.py, the timeout parameter was used to simulate
+a Deadlock Detection mechanism.
+
+Model A attempted to acquire GPU 1 using:
+
+gpu_1_lock.acquire(timeout=TIMEOUT)
+
+The timeout value was 2.0 seconds.
+
+If Model A could not acquire GPU 1 within 2 seconds, the program
+treated the unusually long waiting time as evidence that a Deadlock
+had occurred.
+
+The program then displayed:
+
+[OS WATCHDOG] Deadlock Detected on Model A!
+
+For Recovery, Model A released GPU 0 using:
+
+gpu_0_lock.release()
+
+This acted like a rollback or resource preemption.
+
+After Model A released GPU 0, Model B was able to acquire GPU 0,
+finish its work, and release the resources.
+
+As a result, the system recovered successfully instead of freezing
+indefinitely.
